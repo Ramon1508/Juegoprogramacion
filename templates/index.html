@@ -1,0 +1,512 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+{% block estilos %}<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+{% block extrajs %}
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script>
+        var reloj_is_on=true;
+        var centesimas = 0;
+        var segundos = 0;
+        var minutos = 0;
+        var horas = 0;
+        function empezar(){
+            setTimeout('inicio()',5000)
+        }
+        function inicio () {
+         control = setInterval(cronometro,10);
+        }
+        function cronometro () {
+        if (reloj_is_on) {
+         if (centesimas < 99) {
+          centesimas++;
+          if (centesimas < 10) { centesimas = "0"+centesimas }
+          Centesimas.innerHTML = ":"+centesimas;
+         }
+         if (centesimas == 99) {
+          centesimas = -1;
+         }
+         if (centesimas == 0) {
+          segundos ++;
+          if (segundos < 10) { segundos = "0"+segundos }
+          Segundos.innerHTML = ":"+segundos;
+         }
+         if (segundos == 59) {
+          segundos = -1;
+         }
+         if ( (centesimas == 0)&&(segundos == 0) ) {
+          minutos++;
+          if (minutos < 10) { minutos = "0"+minutos }
+          Minutos.innerHTML = ":"+minutos;
+         }
+         if (minutos == 59) {
+          minutos = -1;
+         }
+         if ( (centesimas == 0)&&(segundos == 0)&&(minutos == 0) ) {
+          horas ++;
+          if (horas < 10) { horas = "0"+horas }
+          Horas.innerHTML = horas;
+         }}
+        }
+    </script>
+<script>
+            $(document).ready(function(){
+                //Aplicar la función sortable a la lista con id milista
+                $( ".container" ).sortable({
+                });
+                $('.escogidos').on('dragstart', function(evt) {
+                    Limpiar();
+                    this.style.color="black";
+                    this.style.background="white";
+                    ElementoMoviendose = this;
+                });
+                $(".source").droppable({
+        		drop: function( evento, ui ) {
+        		    Limpiar();
+			    	ui.helper.remove();
+        		}
+        	});
+            });
+</script>
+<script type="text/javascript"></script>
+        <script>
+            var entradas = [];
+            var salidas = [];
+            var container;  
+            var ElementoMoviendose;
+            window.addEventListener('load',init);
+            function init(){
+                empezar();
+                ValoresIniciales();
+                container = document.querySelector(".container");
+                container.addEventListener('dragover',dragsobrecontainer,false);
+                container.addEventListener('dragleave',dragsaliocontainer,false);
+                container.addEventListener('drop',drop,false)
+                var CMD_PasoAPaso = document.getElementById("CMD_PasoAPaso");
+                CMD_PasoAPaso.addEventListener("click",CMD_PasoAPaso_Click,false);
+                var CMD_Escogidos = document.getElementById("CMD_Escogidos");
+                CMD_Escogidos.addEventListener("click", CMD_Escogidos_Click,false);
+                var CMD_Entradas = document.getElementById("CMD_Entradas");
+                CMD_Entradas.addEventListener("click", CMD_Entradas_Click,false);
+                var CMD_Limpiar = document.getElementById("CMD_Limpiar");
+                CMD_Limpiar.addEventListener("click", CMD_Limpiar_Click,false);
+                var elements = document.getElementsByClassName('opciones');
+                for (i in elements){
+                    var element = elements[i];
+                    if(typeof element.style != "undefined"){
+                        element.addEventListener('dragstart',iniciadrag,false);
+                        element.addEventListener("dragend",terminadrag,false);
+                    }
+                }
+            }
+            function terminadrag(e){
+                Limpiar();
+                ElementoMoviendose.style.background = "#212020";
+                ElementoMoviendose.style.color = "white";
+            }
+            function dragsobrecontainer(e){
+                e.preventDefault();
+                this.classList.add('over');
+                return false;
+            }
+            function GetNumber(i,f, texto1, texto2) {
+                //Ingresamos un mensaje a mostrar
+                var val = prompt(texto1,'','');
+                while ((val > f || val < i) || (parseFloat(val) != val)) {
+                    val = prompt(texto2,'','');
+                }
+                return val;
+            }
+            function contarescogidos(){
+                var elements = document.getElementsByClassName('escogidos');
+                var lenescogidos = 0;
+                for (i in elements)
+                    {
+                        var element = elements[i];
+                        if(typeof element.style != "undefined"){
+                            lenescogidos +=1;
+                        }
+                    }
+                return lenescogidos;
+            }
+            function CMD_Escogidos_Click(e){
+                var elements = document.getElementsByClassName('escogidos');
+                for (i in elements)
+                    {
+                        var element = elements[i];
+                        if(typeof element.style != "undefined"){
+                            console.log(element.textContent);
+                        }
+                    }
+            }
+            function dragsaliocontainer(e){
+                e.preventDefault();
+                this.classList.remove('over');
+                return false;
+            }
+            function iniciadrag(e){
+                Limpiar();
+                this.style.color="black";
+                this.style.background="white";
+                ElementoMoviendose = this;
+            }
+            function drop(e){
+                e.preventDefault();
+                Limpiar();
+                var padre = document.createElement('p');
+                var clon = ElementoMoviendose.cloneNode(true);
+                clon.style.background = "#212020";
+                clon.style.color = "white";
+                clon.className = "escogidos";
+                if (clon.textContent != "Entrada" && contarescogidos() == "0" && clon.textContent != "Copiar de [_]") return;
+                if (clon.getAttribute("tipo") == "normal"){
+                    this.appendChild(clon);return;
+                }
+                if (clon.getAttribute("tipo") == "piso"){
+                    var Numero = GetNumber(0,5,"Introduzca el número de piso [0-5]:","Introduzca solo números de piso [0-5]:");
+                    clon.setAttribute("Numero", Numero);
+                    clon.textContent = clon.getAttribute("text") + Numero + "]";
+                    this.appendChild(clon);return;
+                }
+                if (contarescogidos() > 0){
+                    var Numero = GetNumber(1,contarescogidos(),"Introduzca el número de línea a saltar:","Introduzca solo números de líneas que existan:");
+                    clon.setAttribute("Numero", Numero);
+                    clon.textContent = clon.getAttribute("text") + Numero + "]"
+                    this.appendChild(clon);
+                }
+            }
+            function CMD_Limpiar_Click(e){
+                    location.reload();
+            }
+            function ValoresIniciales(){
+                var E = document.getElementById("entradas");
+                elements = E.getElementsByTagName("h4");
+                for (i in elements)
+                {
+                    var element = elements[i];
+                    if(typeof element.style != "undefined"){
+                        entradas.push(element.textContent);
+                    }
+                }
+                E = document.getElementById("salidas");
+                elements = E.getElementsByTagName("h4");
+                for (i in elements)
+                {
+                    var element = elements[i];
+                    if(typeof element.style != "undefined"){
+                        salidas.push(element.textContent);
+                    }
+                }
+            }
+            function CMD_Entradas_Click(e){
+                Limpiar();
+                console.clear();
+                var piso = document.getElementById("piso").getElementsByTagName("h3");
+                var indiceEntrada = 0;
+                var LenEntrada = entradas.length;
+                var indiceSalida = 0;
+                var LenSalida = salidas.length;
+                var Manos = document.getElementById("manos");
+                var Resultados = document.getElementById("resultados");
+                Resultados.innerHTML = "";
+                var E = document.getElementsByClassName("escogidos");
+                var Contador = 0;
+                var LenInstrucciones = E.length;
+                var Error = false;
+                var Exito = false;
+                if (LenInstrucciones != 0 && E[0].getAttribute("text") != "Entrada" && E[0].getAttribute("text") != "Copiar de [") {Error = true;alert("Error, no has iniciado con una entrada");}
+                while(Contador < LenInstrucciones && Error != true && Exito != true) {
+                var Linea = E[Contador].getAttribute("text");
+                E[Contador].style.background="white";
+                E[Contador].style.color="black";
+                if (Linea == "Entrada"){
+                    Manos.textContent = entradas[indiceEntrada];
+                    document.getElementById("entradas").children[indiceEntrada].style.background="green";
+                    indiceEntrada = indiceEntrada+1;
+                }
+                if (Linea == "Salida"){
+                    if (salidas[indiceSalida] == Manos.textContent) {
+                        Resultados.innerHTML += "<h4 style='Background-color:green'>" + Manos.textContent + "</h4>";
+                    }
+                    else {
+                        Resultados.innerHTML += "<h4 style='Background-color:red'>" + Manos.textContent + "</h4>";
+                        Error = true;
+                    }
+                    indiceSalida += 1;
+                    if (indiceSalida == LenSalida) Exito = true;
+                }
+                if (Linea == "Saltar[") {
+                    var Numero = E[Contador].getAttribute("Numero");
+                    if (Numero > contarescogidos()) Error = true;
+                    else {
+                        E[Contador].style.background="black";
+                        E[Contador].style.color="white";
+                        Contador = Numero - 2;
+                        E[Contador+1].style.background="white";
+                        E[Contador+1].style.color="black";
+                    }
+                }
+                if (Linea == "Saltar si 0[") {
+                    var Numero = E[Contador].getAttribute("Numero");
+                    if (Numero > contarescogidos()) Error = true;
+                    else if (Manos.textContent == "0") {
+                        E[Contador].style.background="black";
+                        E[Contador].style.color="white";
+                        Contador = Numero - 2;
+                        E[Contador+1].style.background="white";
+                        E[Contador+1].style.color="black";
+                    }
+                }
+                if (Linea == "Saltar si -[") {
+                    var Numero = E[Contador].getAttribute("Numero");
+                    if (Numero > contarescogidos()) Error = true;
+                    else if (parseInt(Manos.textContent) < 0) {
+                        E[Contador].style.background="black";
+                        E[Contador].style.color="white";
+                        Contador = Numero - 2;
+                        E[Contador+1].style.background="white";
+                        E[Contador+1].style.color="black";
+                    }
+                }
+                if (Linea == "Copiar de [") {
+                    Manos.textContent = piso[parseInt(E[Contador].getAttribute("Numero"))].textContent;
+                }
+                if (Linea == "Copiar a [") {
+                    piso[parseInt(E[Contador].getAttribute("Numero"))].textContent = Manos.textContent;
+                }
+                if (Linea == "Sumar[") {
+                    Manos.textContent = parseInt(Manos.textContent) + parseInt(piso[parseInt(E[Contador].getAttribute("Numero"))].textContent);
+                }
+                if (Linea == "Restar[") {
+                    Manos.textContent = parseInt(Manos.textContent) - parseInt(piso[parseInt(E[Contador].getAttribute("Numero"))].textContent);
+                }
+                if (Linea == "+ +[") {
+                    piso[parseInt(E[Contador].getAttribute("Numero"))].textContent = parseInt(piso[parseInt(E[Contador].getAttribute("Numero"))].textContent) + 1;
+                }
+                if (Linea == "- -[") {
+                    piso[parseInt(E[Contador].getAttribute("Numero"))].textContent = parseInt(piso[parseInt(E[Contador].getAttribute("Numero"))].textContent) - 1;
+                }
+
+                if (Contador >= 0) {
+                    E[Contador].style.background="black";
+                    E[Contador].style.color="white";
+                }
+                Contador = Contador + 1;
+                }
+                if (LenSalida!=indiceSalida) Error = true;
+                if (Error != true) {Manos.style.background="green";reloj_is_on=false;GuardarPartida();}
+                else Manos.style.background="red";
+            }
+            var piso = document.getElementById("piso").getElementsByTagName("h3");
+            var indiceEntrada = 0;
+            var LenEntrada = entradas.length;
+            var indiceSalida = 0;
+            var LenSalida = salidas.length;
+            var Manos = document.getElementById("manos");
+            var Resultados = document.getElementById("resultados");
+            Resultados.innerHTML = "";
+            var E = document.getElementsByClassName("escogidos");
+            var Contador = 0;
+            var LenInstrucciones = E.length;
+            var Error = false;
+            var Exito = false;
+            var Salto = 0;
+            function CMD_PasoAPaso_Click(e) {
+                if (LenInstrucciones != 0 && E[0].getAttribute("text") != "Entrada" && E[0].getAttribute("text") != "Copiar de [") {Error = true;alert("Error, no has iniciado con una entrada");}
+                if(Contador < LenInstrucciones && Error != true && Exito != true) {
+                if (Contador > 0) {
+                    E[Contador-1].style.background="black";
+                    E[Contador-1].style.color="white";
+                }
+                if (Salto > 0) {
+                    E[Salto].style.background="black";
+                    E[Salto].style.color="white";
+                    Salto = 0;
+                }
+                var Linea = E[Contador].getAttribute("text");
+                E[Contador].style.background="white";
+                E[Contador].style.color="black";
+                if (Linea == "Entrada"){
+                    Manos.textContent = entradas[indiceEntrada];
+                    document.getElementById("entradas").children[indiceEntrada].style.background="green";
+                    indiceEntrada = indiceEntrada+1;
+                }
+                if (Linea == "Salida"){
+                    if (salidas[indiceSalida] == Manos.textContent) {
+                        Resultados.innerHTML += "<h4 style='Background-color:green'>" + Manos.textContent + "</h4>";
+                    }
+                    else {
+                        Resultados.innerHTML += "<h4 style='Background-color:red'>" + Manos.textContent + "</h4>";
+                        Error = true;
+                    }
+                    indiceSalida += 1;
+                    if (indiceSalida == LenSalida) Exito = true;
+                }
+                if (Linea == "Saltar[") {
+                    var Numero = E[Contador].getAttribute("Numero");
+                    if (Numero > contarescogidos()) Error = true;
+                    else {
+                        Salto = Contador;
+                        Contador = Numero - 2;
+                    }
+                }
+                if (Linea == "Saltar si 0[") {
+                    var Numero = E[Contador].getAttribute("Numero");
+                    if (Numero > contarescogidos()) Error = true;
+                    else if (Manos.textContent == "0") {
+                        E[Contador].style.background="black";
+                        E[Contador].style.color="white";
+                        Contador = Numero - 2;
+                        E[Contador+1].style.background="white";
+                        E[Contador+1].style.color="black";
+                    }
+                }
+                if (Linea == "Saltar si -[") {
+                    var Numero = E[Contador].getAttribute("Numero");
+                    if (Numero > contarescogidos()) Error = true;
+                    else if (parseInt(Manos.textContent) < 0) {
+                        E[Contador].style.background="black";
+                        E[Contador].style.color="white";
+                        Contador = Numero - 2;
+                        E[Contador+1].style.background="white";
+                        E[Contador+1].style.color="black";
+                    }
+                }
+                if (Linea == "Copiar de [") {
+                    Manos.textContent = piso[parseInt(E[Contador].getAttribute("Numero"))].textContent;
+                }
+                if (Linea == "Copiar a [") {
+                    piso[parseInt(E[Contador].getAttribute("Numero"))].textContent = Manos.textContent;
+                }
+                if (Linea == "Sumar[") {
+                    Manos.textContent = parseInt(Manos.textContent) + parseInt(piso[parseInt(E[Contador].getAttribute("Numero"))].textContent);
+                }
+                if (Linea == "Restar[") {
+                    Manos.textContent = parseInt(Manos.textContent) - parseInt(piso[parseInt(E[Contador].getAttribute("Numero"))].textContent);
+                }
+                if (Linea == "+ +[") {
+                    piso[parseInt(E[Contador].getAttribute("Numero"))].textContent = parseInt(piso[parseInt(E[Contador].getAttribute("Numero"))].textContent) + 1;
+                }
+                if (Linea == "- -[") {
+                    piso[parseInt(E[Contador].getAttribute("Numero"))].textContent = parseInt(piso[parseInt(E[Contador].getAttribute("Numero"))].textContent) - 1;
+                }
+                Contador = Contador + 1;
+                }
+                if (Exito == true) {Manos.style.background="green";reloj_is_on=false;GuardarPartida();}
+                else if (Error == true) Manos.style.background="red";
+            }
+            function Limpiar(){
+                document.getElementById("manos").style.background="black";
+                document.getElementById("manos").textContent = "";
+                for (i in document.getElementsByClassName("escogidos")){
+                    var element = document.getElementsByClassName("escogidos")[i];
+                    if(typeof element.style != "undefined"){
+                        element.style.background="#212020";
+                    }
+                }
+                for (i in document.getElementById("resultados").getElementsByTagName("h4")) {
+                    var element = document.getElementById("resultados").getElementsByTagName("h4")[i];
+                    if(typeof element.style != "undefined"){
+                        element.style.background="black";
+                    }
+                }
+                for (i in document.getElementById("entradas").getElementsByTagName("h4")) {
+                    var element = document.getElementById("entradas").getElementsByTagName("h4")[i];
+                    if(typeof element.style != "undefined"){
+                        element.style.background="black";
+                    }
+                }
+                piso = document.getElementById("piso").getElementsByTagName("h3");
+                indiceEntrada = 0;
+                LenEntrada = entradas.length;
+                indiceSalida = 0;
+                LenSalida = salidas.length;
+                Manos = document.getElementById("manos");
+                Resultados = document.getElementById("resultados");
+                Resultados.innerHTML = "";
+                E = document.getElementsByClassName("escogidos");
+                Contador = 0;
+                LenInstrucciones = E.length;
+                Error = false;
+                Exito = false;
+            }
+            function TotalInstrucciones() {
+                var elements = document.getElementsByClassName('escogidos');
+                var contador = 0;
+                for (i in elements)
+                    {
+                        var element = elements[i];
+                        if(typeof element.style != "undefined"){
+                            contador += 1;
+                        }
+                    }
+                return contador;
+            }
+            function GuardarPartida() {
+                var cadena = "{% url 'LoginAlumnos' %}sg/{{matricula}}/{{idjuego}}/" + horas + "/" + minutos + "/" + segundos + "/" + TotalInstrucciones();
+                location.href = cadena;
+            }
+        </script>
+        {% endblock %}
+        {%block nombrejuego %}{{JuegoTitle}}{%endblock%}
+        {% block navbar %}<div id="contenedor">
+          <div class="reloj" id="Horas">00</div>
+          <div class="reloj" id="Minutos">:00</div>
+          <div class="reloj" id="Segundos">:00</div>
+          <div class="reloj" id="Centesimas">:00</div>
+    </div>{% endblock %}
+        {% block content %}
+                <div id="Cuerpo">
+                    <div class="source" id = "Source">
+                        <h3 class="opciones" tipo="normal" Numero = -1 text="Entrada" draggable='true'>Entrada</h3>
+                        <h3 class="opciones" tipo="normal" Numero = -1 text="Salida" draggable='true'>Salida</h3>
+                        <h3 class="opciones" tipo="piso" Numero = 0 text="Copiar a [" draggable='true'>Copiar a [_]</h3>
+                        <h3 class="opciones" tipo="piso" Numero = 0 text="Copiar de [" draggable='true'>Copiar de [_]</h3>
+                        <h3 class="opciones" tipo="piso" Numero = 0 text="Restar[" draggable='true'>Restar[_]</h3>
+                        <h3 class="opciones" tipo="piso" Numero = 0 text="Sumar[" draggable='true'>Sumar[_]</h3>
+                        <h3 class="opciones" tipo="instr" Numero = 0 text="Saltar[" draggable='true'>Saltar[_]</h3>
+                        <h3 class="opciones" tipo="instr" Numero = 0 text="Saltar si 0[" draggable='true'>Saltar si 0[_]</h3>
+                        <h3 class="opciones" tipo="instr" Numero = 0 text="Saltar si -[" draggable='true'>Saltar si -[_]</h3>
+                        <h3 class="opciones" tipo="piso" Numero = 0 text="+ +[" draggable='true'>+ +[_]</h3>
+                        <h3 class="opciones" tipo="piso" Numero = 0 text="- -[" draggable='true'>- -[_]</h3>
+                    </div>
+                    <div class="container" id = "Container">
+                    </div>
+                    <div id="animacion">
+                        <div class="Entradas" id="entradas">
+                            {% if VectorEntrada %}
+                            {% for entradas in VectorEntrada %}
+                                <h4>{{ entradas }}</h4>
+                            {% endfor %}
+                            {% else %}
+                                <h3>No hay entradas.</h3>
+                            {% endif %}
+                        </div>
+                        <div class="Manos" style=""><div id = "manos"></div></div>
+                        <div class="Salidas" id="salidas">
+                            {% if VectorSalida %}
+                            {% for salidas in VectorSalida %}
+                                <h4>{{ salidas }}</h4>
+                            {% endfor %}
+                            {% else %}
+                                <h3>No hay salidas.</h3>
+                            {% endif %}
+                        </div>
+                        <div class="Resultados" id="resultados">
+
+                        </div>
+                        <div class="Piso" id="piso">
+                            {% for piso in VectorPiso %}
+                            <H3>{{ piso }}</H3>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            <a class="btn btn-primary" id="CMD_Entradas" display = "inline-block">Reproducir rápido</a>
+            <a class="btn btn-primary" id="CMD_PasoAPaso" display = "inline-block">Reproducir paso a paso</a>
+            <a class="btn btn-primary" id="CMD_Escogidos" display = "inline-block">Escogidos</a>
+            <a class="btn btn-primary" id="CMD_Limpiar" display = "inline-block">Limpiar</a>
+
+        {% endblock %}
+</html>

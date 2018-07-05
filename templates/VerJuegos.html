@@ -1,0 +1,32 @@
+{% extends 'base/baseprof.html' %}
+
+{% block content %}
+<table class="table table-striped table-hover table-bordered">
+    <thead class="thead-dark">
+        <tr class="table-info">
+            <th>ID</th>
+            <th>Descripción</th>
+            <th>Menor tiempo</th>
+            <th>Menor cantidad de instrucciones</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if juegos %}
+        {% for juego in juegos %}
+        <tr class="table-active">
+            <th>{{ juego.id }}</th>
+            <th>{{ juego.Descripcion }}</th>
+            <th>{% if juego.PerTiempo %}{{juego.PerTiempo}} con {{juego.Tiempo}}{% else %}---{% endif %}</th>
+            <th>{% if juego.PerTiempo %}{{juego.PerInstr}} con {{juego.instr}}{% else %}---{% endif %}</th>
+            <th>
+                <a class="btn btn-primary" href="{% url 'JuegosEdit' matricula juego.id %}">Editar</a>
+            </th>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <h1>No hay registros de juegos.</h1>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

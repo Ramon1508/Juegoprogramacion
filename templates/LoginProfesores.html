@@ -1,0 +1,5 @@
+{% extends 'base/baselogin.html' %}
+{% block user %}Profesores{% endblock %}
+{% block cambialogin %}
+<h6>Soy un alumno <a href="{% url 'LoginAlumnos' %}" class="card-link" style="color:black">Sigin</a></h6>
+{% endblock %}

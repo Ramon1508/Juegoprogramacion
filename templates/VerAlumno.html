@@ -1,0 +1,28 @@
+{% extends 'base/baseprof.html' %}
+{% block content %}
+<table class="table table-striped table-hover table-bordered">
+    <thead class="thead-dark">
+        <tr class="table-info">
+            <th>Matrícula</th>
+            <th>Nombre</th>
+            <!--faltan los grupos-->
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if estudiantes %}
+        {% for alumno in estudiantes %}
+        <tr class="table-active">
+            <th>{{ alumno.Matricula }}</th>
+            <th>{{ alumno.Nombres }} {{ alumno.ApellidoPaterno }} {{ alumno.ApellidoMaterno }}</th>
+            <th>
+                <a class="btn btn-primary" href="{% url 'AlumnosEdit' matricula alumno.Matricula %}">Editar</a>
+            </th>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <h1>No hay registros de alumnos.</h1>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

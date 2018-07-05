@@ -1,0 +1,146 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="description" content="Administración"/>
+    <meta name="keywords" content = "Juego, Programacion, DND"/>
+	<meta charset="utf-8">
+	<title>{% block title %} Juego de programación {% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+<body>
+    {%if messages%}
+    <ul class="messages">
+        {%for message in messages%}
+        <li class ="alert alert-success">{{message}}</li>
+        {%endfor%}
+    </ul>
+    {%endif%}
+    {% block header %}
+    <header id="cabecera"><h1>Administración del Juego de programación mediante Drag & Drop</h1></header>
+    {% endblock %}
+    <div id="cuerpo">
+        {% block menu %}
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="{% url 'RegistrarGr' matricula %}">Registrar Grupo</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation" style="">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarColor03">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item">
+                <a class="navbar-brand" href="{% url 'RegistrarJuego' matricula %}">Registrar Juego<span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="navbar-brand" href="{% url 'JuegosList' matricula %}">Ver Juegos</a>
+              </li>
+              <li class="nav-item">
+                <a class="navbar-brand" href="{% url 'RegistrarProf' matricula %}">Registrar Profesor</a>
+              </li>
+              <li class="nav-item">
+                <a class="navbar-brand" href="{% url 'ProfesoresList' matricula %}">Ver Profesores</a>
+              </li>
+              <li class="nav-item">
+                <a class="navbar-brand" href="{% url 'RegistrarAlu' matricula %}">Registrar Alumno</a>
+              </li>
+              <li class="nav-item">
+                <a class="navbar-brand" href="{% url 'AlumnosList' matricula %}">Ver Alumnos</a>
+              </li>
+              <li class="nav-item">
+                <a class="navbar-brand" href="{% url 'LoginProfesores' %}">Cerrar sesión</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        {% endblock %}
+        {% block content %}
+            <h2>Bienvenido usuario {{profesor}}</h2>
+            <h3>Hasta el día de hoy se han resuelto los siguientes problemas:</h3>
+            <div class="canvas" style="padding-left: 15px;padding-top: 15px;width: 1270px;height: 100%;">
+                {% if Datas %}
+                {% for contenido in Datas %}
+                <div class="Datos" style="background: black;width: 26.6%;margin-left: 15px;display: table-cell;padding-left: 15px;padding-top: 15px;">
+                    <canvas class="graficas" id="graficas{{contenido.id}}" height="300" width="300"></canvas>
+                    <h3>{{contenido.id}}.-{{contenido.juego}}</h3>
+                </div>
+                {% endfor %}
+                {% else %}
+                <h3>No hay juegos registrados.</h3>
+                {% endif %}
+
+            </div>
+        {% endblock %}
+
+        {% block footer %}
+            <footer id="pie">
+                &copy; Ramon1508 Todos los derechos reservados 2017.
+            </footer>
+        {% endblock%}
+        {% block extrajs %}
+            <script src="{% static 'js/Chart.min.js' %}"></script>
+            <script>
+                {% for contenido in Datas %}
+                        var data = {{contenido.data|safe}};
+                        var id = "graficas{{contenido.id|safe}}"
+                        var ctx = document.getElementById(id).getContext('2d');
+
+                        var options ={scales: {yAxes: [{ticks: {beginAtZero:true}}]}};
+                        var mychart = new Chart(ctx).Pie(data,
+                        {
+                            //Boolean - Whether we should show a stroke on each segment
+                            segmentShowStroke : false,
+
+                            //String - The colour of each segment stroke
+                            segmentStrokeColor : "#fff",
+
+                            //Number - The width of each segment stroke
+                            segmentStrokeWidth : 2,
+
+                            //Number - The percentage of the chart that we cut out of the middle
+                            percentageInnerCutout : 0, // This is 0 for Pie charts
+
+                            //Number - Amount of animation steps
+                            animationSteps : 10,
+
+                            //String - Animation easing effect
+                            animationEasing : "linear",
+
+                            //Boolean - Whether we animate the rotation of the Doughnut
+                            animateRotate : true,
+
+                            //Boolean - Whether we animate scaling the Doughnut from the centre
+                            animateScale : false,
+                        }
+                        );
+                    {% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </script>
+        {% endblock %}
+    </div>
+</body>
+</html>

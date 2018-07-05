@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <title>Traductor</title>
+        <meta name="description" content="Una guía interactiva de primeros pasos para Brackets.">
+    </head>
+    <body>
+
+        <h1 style='display:block;' id="Resultado"></h1>
+        <script>
+            window.addEventListener('load',init);
+            function init() {
+                var salida = document.getElementById("Resultado");
+                for(x=1; x<=10; x++)
+                {
+                    for(y=1; y<=10; y++)
+                    {
+                        salida.innerHTML = salida.innerHTML + x + " x " + y + " = " + x*y + "<br />";
+                    }
+                    salida.innerHTML = salida.innerHTML + "<br />" + "<br />";
+                }
+                
+            }
+        </script>
+    </body>

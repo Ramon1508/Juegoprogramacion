@@ -1,0 +1,75 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="description" content="Juego de programación con Drag And Drop"/>
+    <meta name="keywords" content = "Juego, Programacion, DND"/>
+	<meta charset="utf-8">
+	<title>{% block title %} Juego de programación {% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    {% block estilos %} {% endblock %}
+</head>
+<body {% block onload %}{% endblock %}>
+    {%if messages%}
+    <ul class="messages">
+        {%for message in messages%}
+        <li class ="alert alert-success">{{message}}</li>
+        {%endfor%}
+    </ul>
+    {%endif%}
+    {% block header %}
+    <header id="cabecera">
+        <h1 font="bold 40px Arial">Juego de programación mediante Drag & Drop </h1>
+        <h2 font="bold 35px Arial">{%block nombrejuego %}{%endblock%}</h2>
+    </header>
+    {% endblock %}
+        {% block menu %}
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="{% url 'LoginAlumnos' %}">Cerrar sesión</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation" style="">
+            <span class="navbar-toggler-icon"></span>
+          </button>{% block navbar %}{% endblock %}
+        </nav>
+        {% endblock %}
+        {% block content %}
+        <h2>Bienvenido estudiante {{alumno}}</h2>
+        <h2>Los juegos disponibles son:</h2>
+            {% if juegos %}
+            <table class="table table-striped table-hover table-bordered">
+            <thead class="thead-dark">
+                <tr class="table-info">
+                    <th>ID</th>
+                    <th>Descripción</th>
+                    <th>Menor tiempo personal</th>
+                    <th>Menor cantidad de instrucciones personal</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for juego in juegos %}
+                <tr class="table-active">
+                    <th>{{ juego.id }}</th>
+                    <th>{{ juego.Descripcion }}</th>
+                    <th>{% if juego.Tiempo %}{{juego.Tiempo}}{% else %}---{% endif %}</th>
+                    <th>{% if juego.Tiempo %}{{juego.instr}}{% else %}---{% endif %}</th>
+                    <th>
+                        <a class="btn btn-primary" href="{% url 'Jugar' matricula juego.id %}">Jugar</a>
+                    </th>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+            {% else %}
+                <h1>No hay registros de juegos.</h1>
+            {% endif %}
+        {% endblock %}
+
+        {% block footer %}
+            <footer id="pie">
+                &copy; Ramon1508 Todos los derechos reservados 2017.
+            </footer>
+        {% endblock%}
+        {% block extrajs %}
+        {% endblock %}
+</body>
+</html>
